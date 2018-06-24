@@ -45,7 +45,6 @@ app.post('/byarticul', upload.array(), function (req, res) {
         console.log( xhr.responseText );
         res.send(xhr.responseText);
     }
-
 });
 
 app.post('/bybrand', upload.array(), function (req, res) {
