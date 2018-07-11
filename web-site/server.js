@@ -7,11 +7,11 @@ const app = express();
 const xhr = new XMLHttpRequest();
 const upload = multer(); // for parsing multipart/form-data
 
+app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-app.all('*',function(req,res,next)
-{
+app.all('*',function(req,res,next) {
     if (!req.get('Origin')) return next();
 
     res.set('Access-Control-Allow-Origin','http://localhost:4200');
@@ -19,13 +19,14 @@ app.all('*',function(req,res,next)
     res.set('Access-Control-Allow-Headers','X-Requested-With,Content-Type');
 
     if ('OPTIONS' == req.method) return res.sendStatus(200);
+    res.sendFile(__dirname  + '/public/index.html');
 
     next();
 });
 
-app.get('/', function (req, res) {
-   res.sendFile(__dirname  + '/index.html');
-});
+// app.get('/', function (req, res) {
+//    res.sendFile(__dirname  + '/public/index.html');
+// });
 
 
 app.post('/byarticul', upload.array(), function (req, res) {
@@ -83,6 +84,47 @@ app.get('/brands', function (req, res) {
         res.send(xhr);
     }
 
+});
+
+//Forward
+app.get('/forward', function (req, res) {
+
+    const url = 'http://api.forward-motors.com/auth/token';
+    const body = "username=nkmotors&password=4d9dbad784fb6f69";
+
+
+    xhr.open('POST', url, false);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send(body);
+
+    if (xhr.status != 200) {
+        console.log( xhr.status + ': ' + xhr.statusText);
+    } else {
+
+        console.log( xhr.responseText );
+
+
+        res.send(xhr.responseText);
+    }
+
+
+});
+
+app.get('/forward2', function (req, res) {
+    const url2 = 'http://api.forward-motors.com/search/index';
+    const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE1MzAzODE0OTYsImp0aSI6IlcxcXJRVWtsd3lcL1A5MkZtMFc1WmtaeVwvMVJLWTJXTXpDUGRJUmZJV01RVT0iLCJpc3MiOiJhcGkuZm9yd2FyZC1tb3RvcnMuY29tIiwibmJmIjoxNTMwMzgxNDk1LCJleHAiOjE1MzA0Njc0OTUsImRhdGEiOnsidXNlcklkIjoiOTcyNiIsInVzZXJOYW1lIjoibmttb3RvcnMifX0.nu9zGbK27GbwGbF6__JbQLF8MTHWl-ZGzEY2Jq9kOo1ULYtqm0gTSxrmyS23Is-YbP210Ufp2niSwwdK4DIGpg';
+    xhr.open('POST', url2, false);
+    xhr.setRequestHeader('Content-Type', 'Content-type: application/json');
+    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    xhr.send(JSON.stringify({"phrase":"OC47"}));
+
+    if (xhr.status != 200) {
+        console.log( xhr.status + ': ' + xhr.statusText);
+    } else {
+        console.log( xhr.responseText );
+        res.send(xhr.responseText);
+
+    }
 });
 
 app.listen(3030);
